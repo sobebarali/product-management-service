@@ -28,20 +28,44 @@ export const updateProductService = async (
   productId: string,
   productData: Partial<IProduct>
 ): Promise<IProduct> => {
-  const product = await getProductById(productId);
+  try {
+    const product = await getProductById(productId);
 
-  // Check if the version matches
-  if (productData.version !== product.version) {
-    throw new HttpError(
-      409,
-      "Product version mismatch. Please refresh and try again."
-    );
+    if (!product) {
+      throw new HttpError(404, "Product not found.");
+    }
+
+    // Check if the version is provided and is a valid number
+    if (
+      productData.version === undefined ||
+      isNaN(productData.version) ||
+      productData.version < 0
+    ) {
+      throw new HttpError(400, "Invalid product version.");
+    }
+
+    // Check if the version matches
+    if (productData.version !== product.version) {
+      throw new HttpError(
+        409,
+        `Product version mismatch. Expected version: ${product.version}, provided version: ${productData.version}. Please refresh and try again.`
+      );
+    }
+
+    // Increment the version before updating
+    const updatedProductData: Partial<IProduct> = {
+      ...productData,
+      version: product.version + 1,
+    };
+
+    const updatedProduct = await updateProduct(productId, updatedProductData);
+    return updatedProduct;
+  } catch (error) {
+    if (error instanceof HttpError) {
+      throw error;
+    }
+    throw new HttpError(500, "An error occurred while updating the product.");
   }
-
-  // Increment the version before updating
-  productData.version = product.version + 1;
-
-  return updateProduct(productId, productData);
 };
 
 export const deleteProductService = async (

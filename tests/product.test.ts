@@ -176,7 +176,7 @@ describe("Product Management Service", () => {
 
       expect(response.status).toBe(409);
       expect(response.body.message).toBe(
-        "Product version mismatch. Please refresh and try again."
+        "Product version mismatch. Expected version: 0, provided version: 1. Please refresh and try again."
       );
     });
   });
