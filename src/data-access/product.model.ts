@@ -5,9 +5,10 @@ export interface IProduct extends Document {
   description: string;
   price: number;
   quantity: number;
-  category: string;
+  category?: string;
   brand?: string;
   images?: string[];
+  version: number;
 }
 
 const productSchema: Schema = new mongoose.Schema({
@@ -29,10 +30,13 @@ const productSchema: Schema = new mongoose.Schema({
   },
   category: {
     type: String,
-    required: true,
   },
   brand: String,
   images: [String],
+  version: {
+    type: Number,
+    default: 0,
+  },
 }, {
   timestamps: true,
 });
